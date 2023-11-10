@@ -5,19 +5,15 @@ from tools import *
 pygame.init()
 
 screen = pygame.display.set_mode((Screen.WIDTH, Screen.HEIGHT))
+paint = Painter(screen)
 
 user = User(200, 200, 0)
-enemy = Enemy(100, 100, 0)
-
-pygame.init()
-
-screen = pygame.display.set_mode((Screen.WIDTH, Screen.HEIGHT))
+enemy = Enemy(100, 100, 117)
 
 run = True
 bullets = []
 explosions = []
 while run:
-    current_time = pygame.time.get_ticks()
     screen.fill(Screen.COLOR)
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
@@ -31,11 +27,9 @@ while run:
         
     keys = pygame.key.get_pressed()        
     
-    for explosion in explosions:
-        pygame.draw.rect(screen, settings.EXPLOSION_COLOR, explosion)
-
-    screen.fill(Screen.COLOR)
-
+    # for explosion in explosions:
+    #     pygame.draw.rect(screen, settings.EXPLOSION_COLOR, explosion)
+    
     user.move(keys)
     if keys[pygame.K_ESCAPE]:
         run = False
@@ -44,17 +38,6 @@ while run:
     elif keys[pygame.K_RIGHT]:
         Tank.rotate(user, settings.delta)
 
-    for bullet in bullets:
+    paint.draw(user, enemy, bullets)
 
-        if Screen.X_MIN <= bullet.x <= Screen.X_MAX and \
-            Screen.Y_MIN <= bullet.y <= Screen.Y_MAX: 
-            bullet.x += bullet.speed * np.sin(bullet.angle)
-            bullet.y -= bullet.speed * np.cos(bullet.angle)
-        # bullet.sprite = pygame.Rect(bullet.x, )
-            bullet.draw(screen)
-        else:
-            bullets.remove(bullet)
-
-    enemy.draw(screen)
-    user.draw(screen)
     pygame.display.flip()

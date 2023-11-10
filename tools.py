@@ -2,7 +2,7 @@ import settings
 import pygame
 import sys
 import numpy as np
-
+import time
 
 class Screen:
     WIDTH = settings.WIDTH
@@ -12,6 +12,8 @@ class Screen:
     X_MAX = settings.X_MAX
     Y_MIN = settings.Y_MIN
     Y_MAX = settings.Y_MAX
+
+
 
 class Bullet:
     def __init__(self, x, y, angle):
@@ -26,6 +28,11 @@ class Bullet:
     def draw(self, screen):
         self.sprite = pygame.Rect(self.x, self.y, 5, 5)
         pygame.draw.rect(screen, self.color, self.sprite)
+
+    def clear(self, screen):
+        self.sprite = pygame.Rect(self.x, self.y, 5, 5)
+        pygame.draw.rect(screen, Screen.COLOR, self.sprite)
+
 
 
 class Tank:
@@ -124,6 +131,7 @@ class Enemy(Tank):
         self.body = pygame.Rect(self.x - Tank.WIDTH//2, self.y - Tank.HEIGHT//2, self.w, self.h)
 
 
+
 class User(Tank):
     COLOR = settings.USER_COLOR
     def __init__(self, x, y, angle):
@@ -140,6 +148,24 @@ class User(Tank):
         self.exp = 0
         
         self.body = pygame.Rect(self.x - Tank.WIDTH//2, self.y - Tank.HEIGHT//2, self.w, self.h)
+
+
+class Painter:
+    def __init__(self, screen):
+        self.screen = screen
+    
+    def draw(self, user, enemy, bullets):
+        for bullet in bullets:
+            if Screen.X_MIN <= bullet.x <= Screen.X_MAX and \
+                Screen.Y_MIN <= bullet.y <= Screen.Y_MAX: 
+                bullet.x += bullet.speed * np.sin(bullet.angle)
+                bullet.y -= bullet.speed * np.cos(bullet.angle)
+                bullet.draw(self.screen)
+            else:
+                bullets.remove(bullet)
+
+        enemy.draw(self.screen)
+        user.draw(self.screen)
 
 
 if __name__ == "__main__":
