@@ -51,7 +51,9 @@ class Tank:
 
     def move(player, keys):
         if keys[pygame.K_w]:
-            player.y -= settings.velocity
+            y = player.y - settings.velocity
+            if Screen.Y_MIN <= y <= Screen.Y_MAX:
+                player.y = y
             player.w = Tank.WIDTH
             player.h = Tank.HEIGHT
             x = player.x - Tank.WIDTH//2
@@ -60,7 +62,9 @@ class Tank:
             player.body = pygame.Rect(x, y, player.w, player.h)
 
         elif keys[pygame.K_s]:
-            player.y += settings.velocity
+            y = player.y + settings.velocity
+            if Screen.Y_MIN <= y <= Screen.Y_MAX:
+                player.y = y
             player.w = Tank.WIDTH
             player.h = Tank.HEIGHT
             x = player.x - Tank.WIDTH//2
@@ -69,7 +73,9 @@ class Tank:
             player.body = pygame.Rect(x, y, player.w, player.h)
 
         elif keys[pygame.K_a]:
-            player.x -= settings.velocity
+            x = player.x - settings.velocity
+            if Screen.X_MIN <= x <= Screen.X_MAX:
+                player.x = x
             player.w = Tank.HEIGHT
             player.h = Tank.WIDTH
             x = player.x - Tank.HEIGHT//2
@@ -78,7 +84,9 @@ class Tank:
             player.body = pygame.Rect(x, y, player.w, player.h)
             
         elif keys[pygame.K_d]:
-            player.x += settings.velocity
+            x = player.x + settings.velocity
+            if Screen.X_MIN <= x <= Screen.X_MAX:
+                player.x = x
             player.w = Tank.HEIGHT
             player.h = Tank.WIDTH
             x = player.x - Tank.HEIGHT//2

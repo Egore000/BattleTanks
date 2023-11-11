@@ -1,12 +1,3 @@
-# Параметры окна
-WIDTH = 1280
-HEIGHT = 720
-BACKGROUND_COLOR = (0, 0, 0)
-X_MIN = 0
-X_MAX = WIDTH
-Y_MIN = 0
-Y_MAX = HEIGHT
-
 # Цвета огня и танков игрока и противника
 USER_COLOR = (0, 130, 0)
 ENEMY_COLOR = (100, 100, 100)
@@ -25,3 +16,12 @@ BULLET_SPEED = 1
 
 # Скорость вращения башни
 delta = 0.3
+
+# Параметры окна
+WIDTH = 1280
+HEIGHT = 720
+BACKGROUND_COLOR = (0, 0, 0)
+X_MIN = TANK_WIDTH//2
+X_MAX = WIDTH - TANK_WIDTH
+Y_MIN = TANK_HEIGHT//2
+Y_MAX = HEIGHT - TANK_WIDTH
