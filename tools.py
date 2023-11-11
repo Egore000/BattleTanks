@@ -14,6 +14,18 @@ class Screen:
     Y_MAX = settings.Y_MAX
 
 
+class Explosion:
+    def __init__(self, x, y):
+        self.x = x
+        self.y = y
+        self.size = settings.EXPLOSION_SIZE
+        self.color = settings.EXPLOSION_COLOR
+        self.texture = pygame.Rect(x-self.size//2, y-self.size//2, self.size, self.size)
+
+    def draw(self, screen):
+        pygame.draw.rect(screen, self.color, self.texture)
+
+
 
 class Bullet:
     def __init__(self, x, y, angle):
@@ -22,16 +34,13 @@ class Bullet:
         self.angle = angle
 
         self.speed = settings.BULLET_SPEED
-        self.sprite = pygame.Rect(x-3, y-3, 6, 6)
-        self.color = (255, 255, 0)
+        self.color = settings.BULLET_COLOR
+        self.size = settings.BULLET_SIZE
+        self.sprite = pygame.Rect(x - self.size//2, y - self.size//2, self.size, self.size)
 
     def draw(self, screen):
-        self.sprite = pygame.Rect(self.x, self.y, 5, 5)
+        self.sprite = pygame.Rect(self.x - self.size//2, self.y - self.size//2, self.size, self.size)
         pygame.draw.rect(screen, self.color, self.sprite)
-
-    def clear(self, screen):
-        self.sprite = pygame.Rect(self.x, self.y, 5, 5)
-        pygame.draw.rect(screen, Screen.COLOR, self.sprite)
 
 
 
@@ -117,8 +126,7 @@ class Tank:
     def shoot(player):
         x = player.x + Tank.GUN_LENGHT * np.sin(player.angle)
         y = player.y - Tank.GUN_LENGHT * np.cos(player.angle)
-        explosion = pygame.Rect(x-6, y-6, 12, 12)
-        return Bullet(x, y, player.angle), explosion
+        return Bullet(x, y, player.angle), Explosion(x, y)
 
 
 
@@ -208,7 +216,7 @@ class Painter:
     def __init__(self, screen):
         self.screen = screen
     
-    def draw(self, user, enemy, bullets, world_map):
+    def draw(self, user, enemy, bullets, explosions, world_map):
         for bullet in bullets:
             if Screen.X_MIN <= bullet.x <= Screen.X_MAX and \
                 Screen.Y_MIN <= bullet.y <= Screen.Y_MAX: 
@@ -217,6 +225,14 @@ class Painter:
                 bullet.draw(self.screen)
             else:
                 bullets.remove(bullet)
+
+        for explosion in explosions:
+            explosion.draw(self.screen)
+        
+        time.sleep(0.01)
+
+        for explosion in explosions:
+            explosions.remove(explosion)
 
         enemy.draw(self.screen)
         user.draw(self.screen)

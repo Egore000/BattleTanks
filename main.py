@@ -29,9 +29,6 @@ while run:
         
     keys = pygame.key.get_pressed()        
     
-    # for explosion in explosions:
-    #     pygame.draw.rect(screen, settings.EXPLOSION_COLOR, explosion)
-    
     user.move(keys)
     if keys[pygame.K_ESCAPE]:
         run = False
@@ -40,6 +37,6 @@ while run:
     elif keys[pygame.K_RIGHT]:
         Tank.rotate(user, settings.delta)
 
-    paint.draw(user, enemy, bullets, world_map)
+    paint.draw(user, enemy, bullets, explosions, world_map)
 
     pygame.display.flip()
