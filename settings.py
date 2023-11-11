@@ -11,17 +11,24 @@ GUN_LENGHT = 1.2 * TANK_HEIGHT
 TOWER_WIDTH = 30
 
 # Скорость движения танка и снаряда. 
-velocity = 0.3
+velocity = 0.2
 BULLET_SPEED = 1
 
 # Скорость вращения башни
 delta = 0.3
 
 # Параметры окна
-WIDTH = 1280
-HEIGHT = 720
+WIDTH = 1300
+HEIGHT = 630
 BACKGROUND_COLOR = (0, 0, 0)
 X_MIN = TANK_WIDTH//2
 X_MAX = WIDTH - TANK_WIDTH
 Y_MIN = TANK_HEIGHT//2
 Y_MAX = HEIGHT - TANK_WIDTH
+
+TILE = 30
+TEXTURES = {
+    'W': (30, 30, 10),
+    'B': (134, 11, 17),
+    'G': (20, 141, 3),
+}

@@ -49,7 +49,7 @@ class Tank:
     
         return player
 
-    def move(player, keys):
+    def move(player, x, y):
         if keys[pygame.K_w]:
             y = player.y - settings.velocity
             if Screen.Y_MIN <= y <= Screen.Y_MAX:
@@ -139,7 +139,6 @@ class Enemy(Tank):
         self.body = pygame.Rect(self.x - Tank.WIDTH//2, self.y - Tank.HEIGHT//2, self.w, self.h)
 
 
-
 class User(Tank):
     COLOR = settings.USER_COLOR
     def __init__(self, x, y, angle):
@@ -157,12 +156,59 @@ class User(Tank):
         
         self.body = pygame.Rect(self.x - Tank.WIDTH//2, self.y - Tank.HEIGHT//2, self.w, self.h)
 
+    def move(self, keys):
+        if keys[pygame.K_w]:
+            y = self.y - settings.velocity
+            if Screen.Y_MIN <= y <= Screen.Y_MAX:
+                self.y = y
+            self.w = Tank.WIDTH
+            self.h = Tank.HEIGHT
+            x = self.x - Tank.WIDTH//2
+            y = self.y - Tank.HEIGHT//2
+            # player.angle = 0
+            self.body = pygame.Rect(x, y, self.w, self.h)
+
+        elif keys[pygame.K_s]:
+            y = self.y + settings.velocity
+            if Screen.Y_MIN <= y <= Screen.Y_MAX:
+                self.y = y
+            self.w = Tank.WIDTH
+            self.h = Tank.HEIGHT
+            x = self.x - Tank.WIDTH//2
+            y = self.y - Tank.HEIGHT//2
+            # player.angle = np.pi
+            self.body = pygame.Rect(x, y, self.w, self.h)
+
+        elif keys[pygame.K_a]:
+            x = self.x - settings.velocity
+            if Screen.X_MIN <= x <= Screen.X_MAX:
+                self.x = x
+            self.w = Tank.HEIGHT
+            self.h = Tank.WIDTH
+            x = self.x - Tank.HEIGHT//2
+            y = self.y - Tank.WIDTH//2
+            # player.angle = -np.pi/2
+            self.body = pygame.Rect(x, y, self.w, self.h)
+            
+        elif keys[pygame.K_d]:
+            x = self.x + settings.velocity
+            if Screen.X_MIN <= x <= Screen.X_MAX:
+                self.x = x
+            self.w = Tank.HEIGHT
+            self.h = Tank.WIDTH
+            x = self.x - Tank.HEIGHT//2
+            y = self.y - Tank.WIDTH//2
+            # player.angle = np.pi/2
+
+            self.body = pygame.Rect(x, y, self.w, self.h)
+        return self 
+
 
 class Painter:
     def __init__(self, screen):
         self.screen = screen
     
-    def draw(self, user, enemy, bullets):
+    def draw(self, user, enemy, bullets, world_map):
         for bullet in bullets:
             if Screen.X_MIN <= bullet.x <= Screen.X_MAX and \
                 Screen.Y_MIN <= bullet.y <= Screen.Y_MAX: 
@@ -175,6 +221,8 @@ class Painter:
         enemy.draw(self.screen)
         user.draw(self.screen)
 
+        for x, y, char in world_map:
+            pygame.draw.rect(self.screen, settings.TEXTURES.get(char), (x, y, settings.TILE, settings.TILE))
 
 if __name__ == "__main__":
     pass

@@ -1,14 +1,16 @@
 import pygame
 import sys
 from tools import *
+from map import world_map
 
 pygame.init()
 
 screen = pygame.display.set_mode((Screen.WIDTH, Screen.HEIGHT))
 paint = Painter(screen)
+clock = pygame.time.Clock()
 
 user = User(200, 200, 0)
-enemy = Enemy(100, 100, 117)
+enemy = Enemy(500, 200, 117)
 
 run = True
 bullets = []
@@ -38,6 +40,6 @@ while run:
     elif keys[pygame.K_RIGHT]:
         Tank.rotate(user, settings.delta)
 
-    paint.draw(user, enemy, bullets)
+    paint.draw(user, enemy, bullets, world_map)
 
     pygame.display.flip()
