@@ -15,16 +15,29 @@ class Screen:
 
 
 class Explosion:
+    SIZE = settings.EXPLOSION_SIZE
+
+    textures = [
+        settings.TEXTURES['explosion'][1]
+    ]
+
     def __init__(self, x, y):
         self.x = x
         self.y = y
         self.size = settings.EXPLOSION_SIZE
         self.color = settings.EXPLOSION_COLOR
-        self.texture = pygame.Rect(x-self.size//2, y-self.size//2, self.size, self.size)
+        self.texture = Explosion.textures
+
+    @property
+    def pos(self):
+        return (self.x - self.size//2, self.y - self.size//2)
 
     def draw(self, screen):
-        pygame.draw.rect(screen, self.color, self.texture)
-
+        for texture in self.textures:
+            texture = pygame.transform.scale(texture, (self.size, self.size))
+            texture.set_colorkey((255, 255, 255))
+            # texture
+            screen.blit(texture, self.pos)
 
 
 class Bullet:
@@ -47,8 +60,6 @@ class Bullet:
 class Tank:
     WIDTH = settings.TANK_WIDTH
     HEIGHT = settings.TANK_HEIGHT
-    GUN_WIDTH = settings.GUN_WIDTH
-    GUN_LENGHT = settings.GUN_LENGHT
     TOWER_WIDTH = settings.TOWER_WIDTH
     TOWER_HEIGHT = settings.TOWER_HEIGHT
     
@@ -75,8 +86,8 @@ class Tank:
         screen.blit(player.tower, player.tower_rect)
         
     def shoot(player):
-        x = player.x + Tank.GUN_LENGHT * np.sin(player.angle)
-        y = player.y - Tank.GUN_LENGHT * np.cos(player.angle)
+        x = player.x + Tank.TOWER_HEIGHT//2 * np.sin(player.angle)
+        y = player.y - Tank.TOWER_HEIGHT//2 * np.cos(player.angle)
         return Bullet(x, y, player.angle), Explosion(x, y)
 
 

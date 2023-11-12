@@ -7,17 +7,14 @@ EXPLOSION_COLOR = (255, 0, 0)
 BULLET_COLOR = (255, 255, 0)
 
 # Размеры танков
-TANK_WIDTH = 60
-TANK_HEIGHT = 80
-GUN_WIDTH = TANK_WIDTH // 7
-GUN_LENGHT = 1.2 * TANK_HEIGHT
-TOWER_WIDTH = 100
+TANK_WIDTH = 50
+TANK_HEIGHT = 70
+TOWER_WIDTH = 70
 TOWER_HEIGHT = 140
 
 # Размер огня и снарядов
-EXPLOSION_SIZE = 12
+EXPLOSION_SIZE = 20
 BULLET_SIZE = 6
-
 
 # Скорость движения танка и снаряда. 
 velocity = 3
@@ -60,5 +57,8 @@ TEXTURES = {
             'user': pygame.image.load('sprites/textures/tanks/user/tower1.png'),
             'enemy': pygame.image.load('sprites/textures/tanks/enemy/tower.png'),
         }
+    },
+    'explosion':{
+        1: pygame.image.load('sprites/textures/explosions/explosion1.png'),
     }
 }
