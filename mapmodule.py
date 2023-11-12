@@ -31,7 +31,10 @@ text_map = [
 # ]
 
 world_map = set()
+damaged_objects = []
 for j, row in enumerate(text_map):
     for i, char in enumerate(row):
         if char in TEXTURES.keys():
             world_map.add((i * TILE, j * TILE, char))
+        if char in ('B', 'W', 'G'):
+            damaged_objects.append(pygame.Rect(i * TILE, j * TILE, TILE, TILE))

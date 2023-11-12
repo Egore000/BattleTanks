@@ -1,5 +1,7 @@
 import pygame
 
+FPS = 60
+
 # Цвета огня, снарядов и танков игрока и противника
 USER_COLOR = (0, 130, 0)
 ENEMY_COLOR = (100, 100, 100)
@@ -13,7 +15,7 @@ TOWER_WIDTH = 70
 TOWER_HEIGHT = 140
 
 # Размер огня и снарядов
-EXPLOSION_SIZE = 20
+# EXPLOSION_SIZE = 20
 BULLET_SIZE = 6
 
 # Скорость движения танка и снаряда. 
@@ -26,22 +28,18 @@ delta = 2
 # Параметры окна
 WIDTH = 1300
 HEIGHT = 630
-BACKGROUND_COLOR = (0, 0, 0)
-X_MIN = TANK_WIDTH//2
-X_MAX = WIDTH - TANK_WIDTH
-Y_MIN = TANK_HEIGHT//2
-Y_MAX = HEIGHT - TANK_WIDTH
+BACKGROUND_COLOR = (0, 120, 0)
 
 TILE = 30
-# TEXTURES = {
-#     'W': (30, 30, 10),
-#     'B': (134, 11, 17),
-#     'G': (20, 141, 3),
-# }
+
+X_MIN = TANK_WIDTH//2 + TILE
+X_MAX = WIDTH - TANK_WIDTH - TILE
+Y_MIN = TANK_HEIGHT//2 + TILE
+Y_MAX = HEIGHT - TANK_WIDTH - TILE
 
 TEXTURES = {
-    '.': pygame.image.load('sprites/textures/backgrounds/background.png'),
-    # 'background': pygame.image.load('sprites/textures/objects/grass.jpg'),
+    # '.': pygame.image.load('sprites/textures/backgrounds/background.png'),
+    'background': pygame.image.load('sprites/textures/objects/grass.jpg'),
     'W': pygame.image.load('sprites/textures/objects/stones.png'),
     'G': pygame.image.load('sprites/textures/objects/grass.png'),
     'B': pygame.image.load('sprites/textures/objects/Bricks.png'),
@@ -59,6 +57,12 @@ TEXTURES = {
         }
     },
     'explosion':{
-        1: pygame.image.load('sprites/textures/explosions/explosion1.png'),
+        1: (pygame.image.load('sprites/textures/explosions/explosion1.png'), 20),
+        2: (pygame.image.load('sprites/textures/explosions/explosion2.png'), 70),
+        3: (pygame.image.load('sprites/textures/explosions/explosion3.png'), 70),
+        4: (pygame.image.load('sprites/textures/explosions/explosion4.png'), 70),
+        5: (pygame.image.load('sprites/textures/explosions/explosion5.png'), 60),
+        6: (pygame.image.load('sprites/textures/explosions/explosion6.png'), 50),
+        7: (pygame.image.load('sprites/textures/explosions/explosion7.png'), 40),
     }
 }

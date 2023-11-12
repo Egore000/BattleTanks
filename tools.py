@@ -1,10 +1,18 @@
-import settings
-import pygame
 import sys
+
+import pygame
 import numpy as np
 import time
 
+import settings
+from mapmodule import damaged_objects
+
+
 class Screen:
+    '''
+    Класс, содержащий настройки
+    окна
+    '''
     WIDTH = settings.WIDTH
     HEIGHT = settings.HEIGHT
     COLOR = settings.BACKGROUND_COLOR
@@ -15,29 +23,40 @@ class Screen:
 
 
 class Explosion:
-    SIZE = settings.EXPLOSION_SIZE
+    # SIZE = settings.EXPLOSION_SIZE
 
     textures = [
-        settings.TEXTURES['explosion'][1]
+        settings.TEXTURES['explosion'][1],
+        # settings.TEXTURES['explosion'][2],
+        settings.TEXTURES['explosion'][3],
+        # settings.TEXTURES['explosion'][4],
+        # settings.TEXTURES['explosion'][5],
+        # settings.TEXTURES['explosion'][6],
+        # settings.TEXTURES['explosion'][7],
     ]
 
-    def __init__(self, x, y):
+    def __init__(self, x, y, type_):
         self.x = x
         self.y = y
-        self.size = settings.EXPLOSION_SIZE
+
         self.color = settings.EXPLOSION_COLOR
         self.texture = Explosion.textures
-
-    @property
-    def pos(self):
-        return (self.x - self.size//2, self.y - self.size//2)
+        self.type = type_
+    
+    # @property
+    def pos(self, num):
+        return (self.x - self.texture[num][1]//2, self.y - self.texture[num][1]//2)
 
     def draw(self, screen):
-        for texture in self.textures:
-            texture = pygame.transform.scale(texture, (self.size, self.size))
-            texture.set_colorkey((255, 255, 255))
-            # texture
-            screen.blit(texture, self.pos)
+        if self.type == "shot":
+            texture = self.texture[0]
+            texture = pygame.transform.scale(texture[0], (texture[1], texture[1]))
+            screen.blit(texture, self.pos(0))
+        else:
+            for num, texture in enumerate(self.textures):
+                texture = pygame.transform.scale(texture[0], (texture[1], texture[1]))
+                texture.set_colorkey((255, 255, 255))
+                screen.blit(texture, self.pos(num))
 
 
 class Bullet:
@@ -55,7 +74,16 @@ class Bullet:
         self.sprite = pygame.Rect(self.x - self.size//2, self.y - self.size//2, self.size, self.size)
         pygame.draw.rect(screen, self.color, self.sprite)
 
+    def collideEnemy(self, enemy):
+        return self.sprite.colliderect(enemy.body_rect)
 
+
+    def collideMap(self, damaged_objects):
+        idx = self.sprite.collidelist(damaged_objects)
+        if idx == -1:
+            return False
+        return True
+        
 
 class Tank:
     WIDTH = settings.TANK_WIDTH
@@ -65,7 +93,6 @@ class Tank:
     
     tower = settings.TEXTURES['tank']['tower']
     body = settings.TEXTURES['tank']['body']
-
 
     def rotate(player, theta):
         theta *= np.pi/180
@@ -79,17 +106,46 @@ class Tank:
 
         return player
 
-
     def draw(player, screen):
-                 
         screen.blit(player.body, player.body_rect)
         screen.blit(player.tower, player.tower_rect)
         
     def shoot(player):
         x = player.x + Tank.TOWER_HEIGHT//2 * np.sin(player.angle)
         y = player.y - Tank.TOWER_HEIGHT//2 * np.cos(player.angle)
-        return Bullet(x, y, player.angle), Explosion(x, y)
+        return Bullet(x, y, player.angle), Explosion(x, y, 'shot')
 
+    def move(player, dx, dy):
+        '''
+        Метод движения танка. 
+        dx и dy принимают значения (-1, 0, 1)
+        '''
+        if dx < 0:
+            x = player.x - settings.velocity
+            if Screen.X_MIN <= x <= Screen.X_MAX:
+                player.x = x
+            player.body = type(player).body_left
+        elif dx > 0:
+            x = player.x + settings.velocity
+            if Screen.X_MIN <= x <= Screen.X_MAX:
+                player.x = x
+            player.body = type(player).body_rigth
+        
+        if dy < 0:
+            y = player.y - settings.velocity
+            if Screen.Y_MIN <= y <= Screen.Y_MAX:
+                player.y = y
+            player.body = type(player).body
+        elif dy > 0:
+            y = player.y + settings.velocity
+            if Screen.Y_MIN <= y <= Screen.Y_MAX:
+                player.y = y
+            player.body = type(player).body_flip
+
+        player.body_rect = player.body.get_rect(center=player.pos)
+
+        player.tower_rect = player.tower.get_rect(center=player.pos)
+        player.tower.set_colorkey((255, 255, 255))            
 
 
 class Enemy(Tank):
@@ -114,7 +170,7 @@ class Enemy(Tank):
 
         self.angle = angle * np.pi/180
         self.hp = 100
-        self.damage = 30
+        self.damage = 50
         
         self.tower = Enemy.tower
         self.tower_rect = self.tower.get_rect(center=self.pos)
@@ -126,6 +182,9 @@ class Enemy(Tank):
     def pos(self):
         return (self.x, self.y)
 
+    def get_damage(self, user):
+        self.hp -= user.damage
+        user.exp += 30
 
 
 class User(Tank):
@@ -150,6 +209,7 @@ class User(Tank):
 
         self.angle = angle * np.pi/180
         self.hp = 100
+        self.damage = 40
         self.exp = 0
         
         self.tower = User.tower
@@ -162,54 +222,6 @@ class User(Tank):
     def pos(self):
         return (self.x, self.y)
 
-    def move(self, keys):
-        if keys[pygame.K_w]:
-            y = self.y - settings.velocity
-            if Screen.Y_MIN <= y <= Screen.Y_MAX:
-                self.y = y
-
-            self.body = User.body
-            self.body_rect = self.body.get_rect(center=self.pos)
-
-            self.tower_rect = self.tower.get_rect(center=self.pos)
-            self.tower.set_colorkey((255, 255, 255))
-
-        elif keys[pygame.K_s]:
-    
-            y = self.y + settings.velocity
-            if Screen.Y_MIN <= y <= Screen.Y_MAX:
-                self.y = y
-
-            self.body = User.body_flip
-            self.body_rect = self.body.get_rect(center=self.pos)
-            
-            self.tower_rect = self.tower.get_rect(center=self.pos)
-            self.tower.set_colorkey((255, 255, 255))
-
-        elif keys[pygame.K_a]:
-            x = self.x - settings.velocity
-            if Screen.X_MIN <= x <= Screen.X_MAX:
-                self.x = x
-            
-            self.body = User.body_left
-            self.body_rect = self.body.get_rect(center=self.pos)
-
-            self.tower_rect = self.tower.get_rect(center=self.pos)
-            self.tower.set_colorkey((255, 255, 255))
-            
-        elif keys[pygame.K_d]:
-            x = self.x + settings.velocity
-            if Screen.X_MIN <= x <= Screen.X_MAX:
-                self.x = x
-
-            self.body = User.body_rigth
-            self.body_rect = self.body.get_rect(center=self.pos)
-
-            self.tower_rect = self.tower.get_rect(center=self.pos)
-            self.tower.set_colorkey((255, 255, 255))
-
-        return self 
-
 
 class Painter:
     def __init__(self, screen):
@@ -217,30 +229,46 @@ class Painter:
     
     def draw(self, user, enemy, bullets, explosions, world_map):
         for x, y, char in world_map:
-            # pygame.draw.rect(self.screen, settings.TEXTURES.get(char), (x, y, settings.TILE, settings.TILE))
             item = settings.TEXTURES[char]
             item = pygame.transform.scale(item, (settings.TILE, settings.TILE))
             self.screen.blit(item, (x, y))
         
         for bullet in bullets:
-            if Screen.X_MIN <= bullet.x <= Screen.X_MAX and \
-                Screen.Y_MIN <= bullet.y <= Screen.Y_MAX: 
-                bullet.x += bullet.speed * np.sin(bullet.angle)
-                bullet.y -= bullet.speed * np.cos(bullet.angle)
+            sin_a = np.sin(bullet.angle)
+            cos_a = np.cos(bullet.angle)
+            if (Screen.X_MIN <= bullet.x <= Screen.X_MAX) and \
+                    (Screen.Y_MIN <= bullet.y <= Screen.Y_MAX): 
+                
+                bullet.x += bullet.speed * sin_a
+                bullet.y -= bullet.speed * cos_a
                 bullet.draw(self.screen)
+
             else:
                 bullets.remove(bullet)
+            
+            if bullet.collideEnemy(enemy):
+                enemy.get_damage(user)
+
+                explosion = Explosion(bullet.x, bullet.y, 'explose')
+                explosions.append(explosion)
+                bullets.remove(bullet)
+
+            elif bullet.collideMap(damaged_objects):
+                explosion = Explosion(bullet.x, bullet.y, 'explose')
+                explosions.append(explosion)
+                bullets.remove(bullet)
+
+        enemy.draw(self.screen)
+        user.draw(self.screen)
 
         for explosion in explosions:
             explosion.draw(self.screen)
         
-        time.sleep(0.01)
+        time.sleep(1/settings.FPS)
+
 
         for explosion in explosions:
             explosions.remove(explosion)     
-
-        enemy.draw(self.screen)
-        user.draw(self.screen)
 
 if __name__ == "__main__":
     pass
