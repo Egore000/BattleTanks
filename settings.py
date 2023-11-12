@@ -11,7 +11,8 @@ TANK_WIDTH = 60
 TANK_HEIGHT = 80
 GUN_WIDTH = TANK_WIDTH // 7
 GUN_LENGHT = 1.2 * TANK_HEIGHT
-TOWER_WIDTH = 45
+TOWER_WIDTH = 100
+TOWER_HEIGHT = 140
 
 # Размер огня и снарядов
 EXPLOSION_SIZE = 12
@@ -49,5 +50,15 @@ TEXTURES = {
     'B': pygame.image.load('sprites/textures/objects/Bricks.png'),
     'O': pygame.image.load('sprites/textures/objects/water.png'),
     # '.': pygame.image.load('sprites/textures/objects/grass.png')
-    'tank': pygame.image.load('sprites/Корпус_танка.png'),
+    
+    'tank':{
+        'body':{
+            'user': pygame.image.load('sprites/textures/tanks/user/body1.png'),
+            'enemy': pygame.image.load('sprites/textures/tanks/enemy/body.png'),
+        },
+        'tower':{
+            'user': pygame.image.load('sprites/textures/tanks/user/tower1.png'),
+            'enemy': pygame.image.load('sprites/textures/tanks/enemy/tower.png'),
+        }
+    }
 }

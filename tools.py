@@ -50,94 +50,30 @@ class Tank:
     GUN_WIDTH = settings.GUN_WIDTH
     GUN_LENGHT = settings.GUN_LENGHT
     TOWER_WIDTH = settings.TOWER_WIDTH
+    TOWER_HEIGHT = settings.TOWER_HEIGHT
     
-    body = settings.TEXTURES['tank']
-    body = pygame.transform.scale(body, (WIDTH, HEIGHT))
-    body.set_colorkey((255, 255, 255))
-
-    body_left = pygame.transform.rotate(body, 90)
-    body_left.set_colorkey((255, 255, 255))
-    
-    body_rigth = pygame.transform.rotate(body, -90)
-    body_rigth.set_colorkey((255, 255, 255))
-    
-    body_flip = pygame.transform.flip(body, 0, 1)
-    body_flip.set_colorkey((255, 255, 255))
+    tower = settings.TEXTURES['tank']['tower']
+    body = settings.TEXTURES['tank']['body']
 
 
     def rotate(player, theta):
         theta *= np.pi/180
         player.angle += theta
         player.angle -= round(player.angle/(2*np.pi)) * 2*np.pi
-    
+
+        player.tower = pygame.transform.rotate(type(player).tower, -player.angle*180/np.pi)
+       
+        player.tower_rect = player.tower.get_rect(center=player.pos)
+        player.tower.set_colorkey((255, 255, 255))
+
         return player
 
-    # def move(player, x, y):
-    #     if keys[pygame.K_w]:
-    #         y = player.y - settings.velocity
-    #         if Screen.Y_MIN <= y <= Screen.Y_MAX:
-    #             player.y = y
-    #         player.w = Tank.WIDTH
-    #         player.h = Tank.HEIGHT
-    #         x = player.x - Tank.WIDTH//2
-    #         y = player.y - Tank.HEIGHT//2
-    #         # player.angle = 0
-    #         player.body = Tank.body
-
-    #     elif keys[pygame.K_s]:
-    #         y = player.y + settings.velocity
-    #         if Screen.Y_MIN <= y <= Screen.Y_MAX:
-    #             player.y = y
-    #         player.w = Tank.WIDTH
-    #         player.h = Tank.HEIGHT
-    #         x = player.x - Tank.WIDTH//2
-    #         y = player.y - Tank.HEIGHT//2
-    #         # player.angle = np.pi
-    #         player.body = Tank.body_flip
-
-    #     elif keys[pygame.K_a]:
-    #         x = player.x - settings.velocity
-    #         if Screen.X_MIN <= x <= Screen.X_MAX:
-    #             player.x = x
-    #         player.w = Tank.HEIGHT
-    #         player.h = Tank.WIDTH
-    #         x = player.x - Tank.HEIGHT//2
-    #         y = player.y - Tank.WIDTH//2
-    #         # player.angle = -np.pi/2
-    #         player.body = Tank.body_left
-            
-    #     elif keys[pygame.K_d]:
-    #         x = player.x + settings.velocity
-    #         if Screen.X_MIN <= x <= Screen.X_MAX:
-    #             player.x = x
-    #         player.w = Tank.HEIGHT
-    #         player.h = Tank.WIDTH
-    #         x = player.x - Tank.HEIGHT//2
-    #         y = player.y - Tank.WIDTH//2
-    #         # player.angle = np.pi/2
-
-    #         player.body = Tank.body_rigth
-    #     return player 
 
     def draw(player, screen):
-        color = type(player).COLOR
-        r = max(color[0] - 40, 0)
-        g = max(color[1] - 40, 0)
-        b = max(color[2] - 40, 0)
+                 
+        screen.blit(player.body, player.body_rect)
+        screen.blit(player.tower, player.tower_rect)
         
-        gun_color = (r, g, b)
-        
-        start = (player.x, player.y)
-        end = (player.x + Tank.GUN_LENGHT * np.sin(player.angle), player.y - Tank.GUN_LENGHT * np.cos(player.angle))
-                       
-        screen.blit(player.body, (player.x - player.w//2, player.y - player.h//2))
-        # pygame.draw.rect(screen, color, player.body)
-        pygame.draw.line(screen, gun_color, start, end, Tank.GUN_WIDTH) 
-        pygame.draw.circle(screen,
-                        gun_color,
-                        (player.x, player.y),
-                        Tank.TOWER_WIDTH//2)
-
     def shoot(player):
         x = player.x + Tank.GUN_LENGHT * np.sin(player.angle)
         y = player.y - Tank.GUN_LENGHT * np.cos(player.angle)
@@ -146,84 +82,121 @@ class Tank:
 
 
 class Enemy(Tank):
-    COLOR = settings.ENEMY_COLOR
+    tower = pygame.transform.scale(Tank.tower['enemy'], (Tank.TOWER_WIDTH, Tank.TOWER_HEIGHT))
+    tower.set_colorkey((255, 255, 255))
+
+    body = pygame.transform.scale(Tank.body['enemy'], (Tank.WIDTH, Tank.HEIGHT))
+    body.set_colorkey((255, 255, 255))
+
+    body_left = pygame.transform.rotate(body, 90)
+    body_left.set_colorkey((255, 255, 255))
+    
+    body_rigth = pygame.transform.rotate(body, -90)
+    body_rigth.set_colorkey((255, 255, 255))
+    
+    body_flip = pygame.transform.rotate(body, 180)
+    body_flip.set_colorkey((255, 255, 255))
+
     def __init__(self, x, y, angle):
         self.x = x
         self.y = y
-        self.x0 = x - Tank.WIDTH//2
-        self.y0 = y - Tank.HEIGHT//2
-        self.w = Tank.WIDTH
-        self.h = Tank.HEIGHT
 
         self.angle = angle * np.pi/180
         self.hp = 100
         self.damage = 30
         
-        self.body = Tank.body
+        self.tower = Enemy.tower
+        self.tower_rect = self.tower.get_rect(center=self.pos)
+        
+        self.body = Enemy.body
+        self.body_rect = self.body.get_rect(center=self.pos)
+
+    @property
+    def pos(self):
+        return (self.x, self.y)
+
 
 
 class User(Tank):
-    COLOR = settings.USER_COLOR
+    tower = pygame.transform.scale(Tank.tower['user'], (Tank.TOWER_WIDTH, Tank.TOWER_HEIGHT))
+    tower.set_colorkey((255, 255, 255))
+
+    body = pygame.transform.scale(Tank.body['user'], (Tank.WIDTH, Tank.HEIGHT))
+    body.set_colorkey((255, 255, 255))
+
+    body_left = pygame.transform.rotate(body, 90)
+    body_left.set_colorkey((255, 255, 255))
+    
+    body_rigth = pygame.transform.rotate(body, -90)
+    body_rigth.set_colorkey((255, 255, 255))
+    
+    body_flip = pygame.transform.rotate(body, 180)
+    body_flip.set_colorkey((255, 255, 255))
+
     def __init__(self, x, y, angle):
         self.x = x 
         self.y = y
-        self.x0 = x - Tank.WIDTH//2
-        self.y0 = y - Tank.HEIGHT//2
-        self.w = Tank.WIDTH
-        self.h = Tank.HEIGHT
 
         self.angle = angle * np.pi/180
-        self.color = User.COLOR
         self.hp = 100
         self.exp = 0
         
-        self.body = Tank.body
+        self.tower = User.tower
+        self.tower_rect = self.tower.get_rect(center=self.pos)
+
+        self.body = User.body
+        self.body_rect = self.body.get_rect(center=self.pos)
+    
+    @property
+    def pos(self):
+        return (self.x, self.y)
 
     def move(self, keys):
         if keys[pygame.K_w]:
             y = self.y - settings.velocity
             if Screen.Y_MIN <= y <= Screen.Y_MAX:
                 self.y = y
-            self.w = Tank.WIDTH
-            self.h = Tank.HEIGHT
-            x = self.x - Tank.WIDTH//2
-            y = self.y - Tank.HEIGHT//2
-            # player.angle = 0
-            self.body = Tank.body
+
+            self.body = User.body
+            self.body_rect = self.body.get_rect(center=self.pos)
+
+            self.tower_rect = self.tower.get_rect(center=self.pos)
+            self.tower.set_colorkey((255, 255, 255))
 
         elif keys[pygame.K_s]:
+    
             y = self.y + settings.velocity
             if Screen.Y_MIN <= y <= Screen.Y_MAX:
                 self.y = y
-            self.w = Tank.WIDTH
-            self.h = Tank.HEIGHT
-            x = self.x - Tank.WIDTH//2
-            y = self.y - Tank.HEIGHT//2
-            # player.angle = np.pi
-            self.body = Tank.body_flip
+
+            self.body = User.body_flip
+            self.body_rect = self.body.get_rect(center=self.pos)
+            
+            self.tower_rect = self.tower.get_rect(center=self.pos)
+            self.tower.set_colorkey((255, 255, 255))
 
         elif keys[pygame.K_a]:
             x = self.x - settings.velocity
             if Screen.X_MIN <= x <= Screen.X_MAX:
                 self.x = x
-            self.w = Tank.HEIGHT
-            self.h = Tank.WIDTH
-            x = self.x - Tank.HEIGHT//2
-            y = self.y - Tank.WIDTH//2
-            # player.angle = -np.pi/2
-            self.body = Tank.body_left
+            
+            self.body = User.body_left
+            self.body_rect = self.body.get_rect(center=self.pos)
+
+            self.tower_rect = self.tower.get_rect(center=self.pos)
+            self.tower.set_colorkey((255, 255, 255))
             
         elif keys[pygame.K_d]:
             x = self.x + settings.velocity
             if Screen.X_MIN <= x <= Screen.X_MAX:
                 self.x = x
-            self.w = Tank.HEIGHT
-            self.h = Tank.WIDTH
-            x = self.x - Tank.HEIGHT//2
-            y = self.y - Tank.WIDTH//2
-            # player.angle = np.pi/2
 
-            self.body = Tank.body_rigth
+            self.body = User.body_rigth
+            self.body_rect = self.body.get_rect(center=self.pos)
+
+            self.tower_rect = self.tower.get_rect(center=self.pos)
+            self.tower.set_colorkey((255, 255, 255))
+
         return self 
 
 
