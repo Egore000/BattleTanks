@@ -27,8 +27,8 @@ class Explosion:
 
     textures = [
         settings.TEXTURES['explosion'][1],
-        # settings.TEXTURES['explosion'][2],
-        settings.TEXTURES['explosion'][3],
+        settings.TEXTURES['explosion'][2],
+        # settings.TEXTURES['explosion'][3],
         # settings.TEXTURES['explosion'][4],
         # settings.TEXTURES['explosion'][5],
         # settings.TEXTURES['explosion'][6],
@@ -55,7 +55,6 @@ class Explosion:
         else:
             for num, texture in enumerate(self.textures):
                 texture = pygame.transform.scale(texture[0], (texture[1], texture[1]))
-                texture.set_colorkey((255, 255, 255))
                 screen.blit(texture, self.pos(num))
 
 
@@ -94,6 +93,10 @@ class Tank:
     tower = settings.TEXTURES['tank']['tower']
     body = settings.TEXTURES['tank']['body']
 
+    def on_map(x, y):
+        return Screen.X_MIN <= x <= Screen.X_MAX and\
+                Screen.Y_MIN <= y <= Screen.Y_MAX
+
     def rotate(player, theta):
         theta *= np.pi/180
         player.angle += theta
@@ -120,32 +123,45 @@ class Tank:
         Метод движения танка. 
         dx и dy принимают значения (-1, 0, 1)
         '''
+        global damaged_objects
         if dx < 0:
-            x = player.x - settings.velocity
-            if Screen.X_MIN <= x <= Screen.X_MAX:
+            x = player.x - player.speed
+            # if Screen.X_MIN <= x <= Screen.X_MAX:
+            if not player.collide(damaged_objects) and Tank.on_map(x, player.y):
                 player.x = x
             player.body = type(player).body_left
         elif dx > 0:
-            x = player.x + settings.velocity
-            if Screen.X_MIN <= x <= Screen.X_MAX:
+            x = player.x + player.speed
+            if not player.collide(damaged_objects) and Tank.on_map(x, player.y):
                 player.x = x
             player.body = type(player).body_rigth
         
         if dy < 0:
-            y = player.y - settings.velocity
-            if Screen.Y_MIN <= y <= Screen.Y_MAX:
+            y = player.y - player.speed
+            if not player.collide(damaged_objects) and Tank.on_map(player.x, y):
                 player.y = y
             player.body = type(player).body
         elif dy > 0:
-            y = player.y + settings.velocity
-            if Screen.Y_MIN <= y <= Screen.Y_MAX:
+            y = player.y + player.speed
+            if not player.collide(damaged_objects) and Tank.on_map(player.x, y):
                 player.y = y
             player.body = type(player).body_flip
+
+        # if player.collide(damaged_objects):
+        #     player.x -= 5
+        #     player.y -= 5
 
         player.body_rect = player.body.get_rect(center=player.pos)
 
         player.tower_rect = player.tower.get_rect(center=player.pos)
         player.tower.set_colorkey((255, 255, 255))            
+
+    def collide(player, objects):
+        idx = player.body_rect.collidelist(objects)
+        if idx == -1:
+            return False
+        return True
+
 
 
 class Enemy(Tank):
@@ -171,6 +187,7 @@ class Enemy(Tank):
         self.angle = angle * np.pi/180
         self.hp = 100
         self.damage = 50
+        self.speed = settings.velocity
         
         self.tower = Enemy.tower
         self.tower_rect = self.tower.get_rect(center=self.pos)
@@ -178,13 +195,15 @@ class Enemy(Tank):
         self.body = Enemy.body
         self.body_rect = self.body.get_rect(center=self.pos)
 
+        self.rotate(self.angle)
+
+
     @property
     def pos(self):
         return (self.x, self.y)
 
     def get_damage(self, user):
         self.hp -= user.damage
-        user.exp += 30
 
 
 class User(Tank):
@@ -211,6 +230,7 @@ class User(Tank):
         self.hp = 100
         self.damage = 40
         self.exp = 0
+        self.speed = settings.velocity
         
         self.tower = User.tower
         self.tower_rect = self.tower.get_rect(center=self.pos)
@@ -227,7 +247,7 @@ class Painter:
     def __init__(self, screen):
         self.screen = screen
     
-    def draw(self, user, enemy, bullets, explosions, world_map):
+    def draw(self, user, enemy, bullets, explosions, world_map, sound):
         for x, y, char in world_map:
             item = settings.TEXTURES[char]
             item = pygame.transform.scale(item, (settings.TILE, settings.TILE))
@@ -248,6 +268,7 @@ class Painter:
             
             if bullet.collideEnemy(enemy):
                 enemy.get_damage(user)
+                sound.get_damage()
 
                 explosion = Explosion(bullet.x, bullet.y, 'explose')
                 explosions.append(explosion)
@@ -266,9 +287,31 @@ class Painter:
         
         time.sleep(1/settings.FPS)
 
-
         for explosion in explosions:
             explosions.remove(explosion)     
+
+
+class Sounds:
+    def __init__(self, sounds):
+        self.sounds = sounds
+        
+    def play_music(self):
+        pygame.mixer.music.load(self.sounds['music'])
+        pygame.mixer.music.play(-1)
+
+    def play_shot(self):
+        self.sounds['effects']['shot'].set_volume(0.3)
+        self.sounds['effects']['shot'].play()
+
+    def get_damage(self):
+        self.sounds['effects']['damage'].set_volume(0.3)
+        self.sounds['effects']['damage'].play()
+
+    def movement(self):
+        return self.sounds['effects']['movement']
+
+    # def stop_movement(self):
+    #     self.sounds['effects']['movement'].stop()
 
 if __name__ == "__main__":
     pass
