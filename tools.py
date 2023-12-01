@@ -23,16 +23,10 @@ class Screen:
 
 
 class Explosion:
-    # SIZE = settings.EXPLOSION_SIZE
 
     textures = [
         settings.TEXTURES['explosion'][1],
         settings.TEXTURES['explosion'][2],
-        # settings.TEXTURES['explosion'][3],
-        # settings.TEXTURES['explosion'][4],
-        # settings.TEXTURES['explosion'][5],
-        # settings.TEXTURES['explosion'][6],
-        # settings.TEXTURES['explosion'][7],
     ]
 
     def __init__(self, x, y, type_):
@@ -43,7 +37,7 @@ class Explosion:
         self.texture = Explosion.textures
         self.type = type_
     
-    # @property
+
     def pos(self, num):
         return (self.x - self.texture[num][1]//2, self.y - self.texture[num][1]//2)
 
@@ -75,7 +69,6 @@ class Bullet:
 
     def collideEnemy(self, enemy):
         return self.sprite.colliderect(enemy.body_rect)
-
 
     def collideMap(self, damaged_objects):
         idx = self.sprite.collidelist(damaged_objects)
@@ -123,10 +116,8 @@ class Tank:
         Метод движения танка. 
         dx и dy принимают значения (-1, 0, 1)
         '''
-        global damaged_objects
         if dx < 0:
             x = player.x - player.speed
-            # if Screen.X_MIN <= x <= Screen.X_MAX:
             if not player.collide(damaged_objects) and Tank.on_map(x, player.y):
                 player.x = x
             player.body = type(player).body_left
@@ -146,10 +137,6 @@ class Tank:
             if not player.collide(damaged_objects) and Tank.on_map(player.x, y):
                 player.y = y
             player.body = type(player).body_flip
-
-        # if player.collide(damaged_objects):
-        #     player.x -= 5
-        #     player.y -= 5
 
         player.body_rect = player.body.get_rect(center=player.pos)
 
@@ -196,7 +183,6 @@ class Enemy(Tank):
         self.body_rect = self.body.get_rect(center=self.pos)
 
         self.rotate(self.angle)
-
 
     @property
     def pos(self):

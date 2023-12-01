@@ -31,7 +31,6 @@ bullets = []
 explosions = []
 
 while run:
-    # screen.fill(settings.BACKGROUND_COLOR)
     screen.blit(background, (0, 0))
 
     for event in pygame.event.get():
